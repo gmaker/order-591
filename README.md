@@ -9,6 +9,8 @@ fixed dimetric angle; text and menus are an 8×8 glyph overlay.
 NEED RESCUE PER ORDER 5.9.1
 ```
 
+**Play it:** <https://gmaker.github.io/order-591/>
+
 ## Run
 
 Any static file server from the project root (ES modules and shader fetches
