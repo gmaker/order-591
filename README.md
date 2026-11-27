@@ -45,7 +45,7 @@ the long text pages. The 5×7 font covers Latin and Cyrillic capitals.
 
 | Key | Action |
 | --- | --- |
-| left click | walk there along the shortest known path (stops when a new enemy shows up or something blocks the way; click again to walk on past known enemies); adjacent cell = attack / open / use |
+| left click | walk there along the shortest known path (stops while an enemy is in view or something blocks the way); adjacent cell = attack / open / use |
 | right click | shoot at that cell with the bow or staff (arrows, fireballs, ice shards, chain lightning) |
 | numpad / arrows / hjkl yubn | step, attack by walking into things |
 | shift + move | shoot that way |

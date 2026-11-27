@@ -36,8 +36,6 @@ export class GameScene extends Scene {
   /** @type {WorldView|null} created on first renderWorld */ #view = null;
   /** @type {SidePanel} */ #panel;
   /** @type {{ x: number, y: number }[]} */ #path = [];
-  /** Enemies already in view when the walk started; only a new face stops it. @type {Set<import('../game/mob/Mob.js').Mob>} */
-  #noticed = new Set();
   #walkTimer = 0;
   #walkFailures = 0;
   #lastDt = 0;
@@ -137,7 +135,6 @@ export class GameScene extends Scene {
       (px, py) => level.isSeen(px, py) && !level.isSolid(px, py) && level.getMob(px, py) === null);
     if (path === null) { this.addMessage(t('§8No way there')); return; }
     this.#path = path;
-    this.#noticed = this.#enemiesInSight();
     this.#walkTimer = 0;
     this.#walkFailures = 0;
     if (this.#view) this.#view.path = path;
@@ -145,9 +142,8 @@ export class GameScene extends Scene {
 
   /**
    * One step along the path every few ticks. The walk stops when something
-   * blocks the next cell, when we get hurt, or when an enemy we had not seen
-   * at the start of the walk comes into view; clicking again walks on past
-   * enemies we already know about.
+   * blocks the next cell, when we get hurt, or while any enemy is in view:
+   * with monsters around, every step is the player's own call.
    */
   #walk() {
     if (this.#path.length === 0) return;
@@ -175,7 +171,7 @@ export class GameScene extends Scene {
     }
     if (this.#view) this.#view.path = this.#path;
 
-    if (player.hp < hpBefore || this.#newEnemyInSight()) this.#stopWalking();
+    if (player.hp < hpBefore || this.#enemyInSight()) this.#stopWalking();
   }
 
   #stopWalking() {
@@ -183,24 +179,17 @@ export class GameScene extends Scene {
     if (this.#view) this.#view.path = [];
   }
 
-  /** @returns {Set<import('../game/mob/Mob.js').Mob>} hostile mobs in view right now */
-  #enemiesInSight() {
+  #enemyInSight() {
     const level = /** @type {import('../game/Level.js').Level} */ (this.#level);
     const p = this.#player;
     const r = Config.LIGHT_RADIUS;
-    const seen = new Set();
     for (let y = p.y - r; y <= p.y + r; y++) {
       for (let x = p.x - r; x <= p.x + r; x++) {
         if (!level.isVisible(x, y)) continue;
         const mob = level.getMob(x, y);
-        if (mob !== null && hates(mob.faction, p.faction)) seen.add(mob);
+        if (mob !== null && hates(mob.faction, p.faction)) return true;
       }
     }
-    return seen;
-  }
-
-  #newEnemyInSight() {
-    for (const mob of this.#enemiesInSight()) if (!this.#noticed.has(mob)) return true;
     return false;
   }
 
